@@ -290,14 +290,22 @@ void updateGame()
 {
     if (gameState != PLAYING)
         return;   // only move things while playing
-
-    // TODO: movePaddle()
-    // TODO: if the ball is NOT launched -> it follows the paddle
-    //       (ballX = paddleX + 44, ballY = 638)
-    // TODO: if the ball IS launched -> moveBall()
-    // TODO: if allBricksBroken() -> playerWon = true, clearSave(),
-    //       gameState = GAME_OVER                          (Feature 6)
-    // BONUS: move the falling power-up and count down wideTimer here
+    movePaddle();
+    if(!ballLaunched)
+    {
+        ballX = paddle + 44;
+        ballY = 638;
+    }
+    else
+    {
+        moveBall();
+    }
+    if(allBricksBroken())
+    {
+        playerWon = true;
+        clearSave();
+        gameState = GAME_OVER;
+    }
 }
 
 // ---------------------------------------------------------------------
@@ -412,10 +420,13 @@ void bounceOnPaddle()
 // ---------------------------------------------------------------------
 void loseLife()
 {
-    // TODO: lives = lives - 1
-    // TODO: if lives == 0 -> playerWon = false, clearSave(),
-    //       gameState = GAME_OVER
-    // TODO: otherwise -> resetBallOnPaddle() (the bricks stay as they are)
+    lives--;
+    if(lives==0)
+    {
+        playerWon = false;
+        clearSave();
+        gameState = GAME_OVER;
+    }
 }
 
 // ---------------------------------------------------------------------
@@ -425,11 +436,19 @@ void loseLife()
 // ---------------------------------------------------------------------
 bool allBricksBroken()
 {
-    // TODO: nested loops over bricks; if any brick > 0 return false
-    // TODO: after the loops return true
-
-    return false;   // remove this line when you write the function
+    for(int r = 0; r < ROWS; r++)
+        {
+            for(int c = 0; c < COLS; c++)
+                {
+                    if(bricks[r][c] > 0)
+                    {
+                        return false;
+                    }
+                }
+        }
+    return true;
 }
+
 
 
 // =====================================================================

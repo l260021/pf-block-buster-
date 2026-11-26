@@ -289,7 +289,7 @@ void handleInput(sf::RenderWindow& window)
 void updateGame()
 {
     if (gameState != PLAYING)
-        return;   // only move things while playing
+        return;   
     movePaddle();
     if(!ballLaunched)
     {

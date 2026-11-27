@@ -448,9 +448,6 @@ bool allBricksBroken()
         }
     return true;
 }
-
-
-
 // =====================================================================
 //  SECTION 8: SAVE AND CONTINUE
 //  MARKS: Feature 8 (7 marks)

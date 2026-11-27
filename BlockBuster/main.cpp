@@ -293,7 +293,7 @@ void updateGame()
     movePaddle();
     if(!ballLaunched)
     {
-        ballX = paddle + 44;
+        ballX = paddleX + 44;
         ballY = 638;
     }
     else
@@ -367,6 +367,26 @@ void moveBall()
     // ---- Paddle and bottom ----
     // TODO: bounceOnPaddle()
     // TODO: ball below the window (ballY > 700)? -> loseLife()   (Feature 6)
+    ballX += dx;
+    if (ballX<0 || ballX + BALL_SIZE>WINDOW_W)
+    {
+        ballX -= dx;
+        dx = -dx;
+    }
+    else if (hitBricks())
+    {
+        ballX -= dx;
+        dx = -dx;
+    }
+    ballY += dy;
+    if (ballY < HUD_H)
+    {
+        ballY -= dy;
+        dy = -dy;
+    }
+    bounceOnPaddle();
+    if (ballY > WINDOW_H)
+        loseLife();
 }
 
 // ---------------------------------------------------------------------

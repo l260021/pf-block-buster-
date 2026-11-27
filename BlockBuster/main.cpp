@@ -244,11 +244,17 @@ void resetBallOnPaddle()
 // ---------------------------------------------------------------------
 void startNewGame()
 {
-	// TODO: score = 0, lives = START_LIVES
-	// TODO: load the bricks again from level.txt (call loadLevel)
-	// TODO: paddle back to PADDLE_START_X
-	// TODO: ball waiting on the paddle (call resetBallOnPaddle)
-	// TODO: gameState = PLAYING
+    score = 0;
+    lives = START_LIVES;
+    if (!loadLevel())
+    {
+        gameState = MENU;
+        return;
+    }
+    paddleX = PADDLE_START_X;
+    resetBallOnPaddle();
+    showNoSavedGame = false;
+    gameState = PLAYING;
 }
 
 
@@ -275,27 +281,68 @@ void handleInput(sf::RenderWindow& window)
 		}
 	}
 
-	// ---- What each key does depends on the state (switch-case) ----
-	// MARKS: Feature 7 - "gameState handled with switch-case"
-	switch (gameState)
-	{
-	case MENU:
-		// TODO: Up/Down change menuChoice (0, 1, 2)
-		// TODO: Enter on New Game  -> startNewGame()
-		// TODO: Enter on Continue  -> continueGame(); if it returns false,
-		//                            showNoSavedGame = true (stay on menu)
-		// TODO: Enter on Exit      -> window.close()
-		break;
+    // ---- What each key does depends on the state (switch-case) ----
+    // MARKS: Feature 7 - "gameState handled with switch-case"
+    switch (gameState)
+    {
+    case MENU:
+        if (pressedKey == KEY_UP)
+        {
+            menuChoice--;
+            if (menuChoice < OPTION_NEW)
+                menuChoice = OPTION_EXIT;
+        }
+        if (pressedKey == KEY_DOWN)
+        {
+            menuChoice++;
+            if (menuChoice > OPTION_EXIT)
+                menuChoice = OPTION_NEW;
+        }
+        if (pressedKey == KEY_ENTER)
+        {
+            if (menuChoice == OPTION_NEW)
+            {
+                startNewGame();
+            }
+            else if (menuChoice == OPTION_CONTINUE)
+            {
+                if (!continueGame())
+                {
+                    showNoSavedGame = true;
+                }
+                else
+                {
+                    showNoSavedGame = false;
+                }
+            }
+            else if (menuChoice == OPTION_EXIT)
+            {
+                window.close();
+            }
+        }
+        break;
 
-	case PLAYING:
-		// TODO: Space -> launchBall()                         (Feature 3)
-		// TODO: Escape -> saveGame(), then gameState = MENU    (Feature 8)
-		break;
+    case PLAYING:
+        if (pressedKey == KEY_LAUNCH)
+        {
+            launchBall();
+        }
+        if (pressedKey == KEY_ESCAPE)
+        {
+            saveGame();
+            gameState = MENU;
+        }
+        
+        break;
 
-	case GAME_OVER:
-		// TODO: Enter -> gameState = MENU                      (Feature 7)
-		break;
-	}
+    case GAME_OVER:
+        if (pressedKey == KEY_ENTER)
+        {
+            gameState = MENU;
+            menuChoice = OPTION_NEW;
+        }
+        break;
+    }
 }
 
 
@@ -305,24 +352,24 @@ void handleInput(sf::RenderWindow& window)
 // =====================================================================
 void updateGame()
 {
-	if (gameState != PLAYING)
-		return;
-	movePaddle();
-	if (!ballLaunched)
-	{
-		ballX = paddleX + 44;
-		ballY = 638;
-	}
-	else
-	{
-		moveBall();
-	}
-	if (allBricksBroken())
-	{
-		playerWon = true;
-		clearSave();
-		gameState = GAME_OVER;
-	}
+    if (gameState != PLAYING)
+        return;   
+    movePaddle();
+    if(!ballLaunched)
+    {
+        ballX = paddleX + 44;
+        ballY = 638;
+    }
+    else
+    {
+        moveBall();
+    }
+    if(allBricksBroken())
+    {
+        playerWon = true;
+        clearSave();
+        gameState = GAME_OVER;
+    }
 }
 
 // ---------------------------------------------------------------------
@@ -445,12 +492,6 @@ void loseLife()
 		gameState = GAME_OVER;
 	}
 }
-
-// ---------------------------------------------------------------------
-//  allBricksBroken()  -  true when every brick is 0
-//  MARKS: Feature 6 ("YOU WIN")
-//  WHO: Member 3
-// ---------------------------------------------------------------------
 bool allBricksBroken()
 {
 	for (int r = 0; r < ROWS; r++)
@@ -465,22 +506,24 @@ bool allBricksBroken()
 	}
 	return true;
 }
-// =====================================================================
-//  SECTION 8: SAVE AND CONTINUE
-//  MARKS: Feature 8 (7 marks)
-//  WHO: Member 3
-//
-//  savegame.txt format:
-//    line 1:      score lives            e.g.  1250 2
-//    next 8 lines: the bricks as they are now, 10 numbers per row
-//  Do NOT save the paddle or the ball.
-// =====================================================================
 void saveGame()
 {
-	// TODO: open "savegame.txt" with ofstream
-	// TODO: write score and lives on line 1
-	// TODO: nested loops: write each row of bricks (10 numbers, spaces between)
-	// TODO: close the file
+    ofstream fout("savegame.txt");
+    if (!fout)
+    {
+        cout << "Unable to save game!" << endl;
+        return;
+    }
+    fout << score << " " << lives << endl;
+    for (int r = 0;r < ROWS; r++)
+    {
+        for (int c = 0;c < COLS; c++)
+        {
+            fout << bricks[r][c] << " ";
+        }
+        fout << endl;
+    }
+    fout.close();
 }
 
 bool continueGame()
@@ -574,47 +617,97 @@ void drawPaddleAndBall(sf::RenderWindow& window)
 	// BONUS: if wide paddle is on, the paddle size is 150 instead of 100
 	// BONUS: draw the falling power-up ("W" or "+") here
 }
-
-// ---------------------------------------------------------------------
-//  drawHUD()  -  score and lives in the top 50 pixels
-//  MARKS: Feature 6 (4 marks)
-//  WHO: Member 3
-// ---------------------------------------------------------------------
 void drawHUD(sf::RenderWindow& window)
 {
-	// Text in SFML 3: sf::Text text(font, "words", size);
-	sf::Text scoreText(font, "SCORE " + to_string(score), 20);
-	scoreText.setPosition({ 10.f, 12.f });
-	window.draw(scoreText);
+    sf::Text scoreText(font, "SCORE: " + to_string(score), 20);
+    scoreText.setPosition({ 10.f, 12.f });
+    scoreText.setFillColor(sf::Color::White);
 
-	// TODO: draw the lives on the right side, either as a number
-	//       ("LIVES 3") or as small circles (one CircleShape per life)
-	// TODO (optional): a line under the HUD at y = 50
+    window.draw(scoreText);
+
+    sf::Text livesText(font, "LIVES: " + to_string(lives), 20);
+    livesText.setPosition({ 460.f, 12.f });
+    livesText.setFillColor(sf::Color::White);
+
+    window.draw(livesText);
+
+    sf::RectangleShape line({ 600.f, 2.f });
+    line.setPosition({ 0.f, 50.f });
+    line.setFillColor(sf::Color::White);
+
+    window.draw(line);
 }
-
-// ---------------------------------------------------------------------
-//  drawMenu()  -  New Game, Continue, Exit
-//  MARKS: Feature 7 (4 marks) + Feature 8 ("No saved game")
-//  WHO: Member 3
-// ---------------------------------------------------------------------
 void drawMenu(sf::RenderWindow& window)
 {
-	// TODO: draw the title "BLOCK BUSTER"
-	// TODO: draw the 3 options in this order: New Game, Continue, Exit
-	// TODO: show the selected option differently (other colour or ">")
-	//       using menuChoice
-	// TODO: if showNoSavedGame -> draw "No saved game"
-	// TODO: if levelMissing    -> draw "Error: level.txt not found"
-}
+    sf::Text title(font, "BLOCK BUSTER", 40);
+    title.setPosition({ 135.f, 130.f });
+    title.setFillColor(sf::Color::Cyan);
+    window.draw(title);
+    string options[3] =
+    {
+        "NEW GAME",
+        "CONTINUE",
+        "EXIT"
+    };
+    for (int i = 0; i < 3; i++)
+    {
+        sf::Text option(font, options[i], 25);
 
-// ---------------------------------------------------------------------
-//  drawEndScreen()  -  "GAME OVER" or "YOU WIN"
-//  MARKS: Feature 6 + Feature 7 (2 marks)
-//  WHO: Member 3
-// ---------------------------------------------------------------------
+        option.setPosition({ 220.f, 300.f + i * 60.f });
+
+        if (i == menuChoice)
+        {
+            option.setFillColor(sf::Color::Yellow);
+        }
+        else
+        {
+            option.setFillColor(sf::Color::White);
+        }
+
+        window.draw(option);
+    }
+    if (showNoSavedGame)
+    {
+        sf::Text message(font, "No saved game", 20);
+
+        message.setPosition({ 200.f, 520.f });
+        message.setFillColor(sf::Color::Red);
+
+        window.draw(message);
+    }
+    if (levelMissing)
+    {
+        sf::Text error(font, "Error: level.txt not found", 18);
+
+        error.setPosition({ 150.f, 560.f });
+        error.setFillColor(sf::Color::Red);
+
+        window.draw(error);
+    }
+}
 void drawEndScreen(sf::RenderWindow& window)
 {
-	// TODO: if playerWon draw "YOU WIN", otherwise draw "GAME OVER"
-	// TODO: draw the final score
-	// TODO: draw "Press Enter" (Enter goes back to the menu, see handleInput)
+    string message;
+    if (playerWon)
+    {
+        message = "YOU WIN!";
+    }
+    else
+    {
+        message = "GAME OVER";
+    }
+    sf::Text result(font, message, 40);
+    result.setPosition({ 160.f, 230.f });
+    if (playerWon)
+        result.setFillColor(sf::Color::Green);
+    else
+        result.setFillColor(sf::Color::Red);
+    window.draw(result);
+    sf::Text finalScore(font, "FINAL SCORE: " + to_string(score), 25);
+    finalScore.setPosition({ 170.f, 330.f });
+    window.draw(finalScore);
+    sf::Text instruction(font, "Press Enter to return to menu", 18);
+    instruction.setPosition({ 130.f, 430.f });
+    window.draw(instruction);
 }
+

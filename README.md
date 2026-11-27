@@ -6,9 +6,9 @@ A brick breaker game in C++ with SFML 3, made for CS1002 Programming Fundamental
 
 | Name | Roll no. |
 |---|---|
-| Name | 26L-.... |
-| Name | 26L-.... |
-| Name | 26L-.... |
+| AYESHA AFZAAL | 26L-0021 |
+| MARYAM RASHID | 26L-0006 |
+| KHADIJA RASHID | 26L-0017 |
 
 ## Controls
 

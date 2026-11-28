@@ -457,7 +457,16 @@ bool hitBricks()
         int c = hitCol[k];
         bricks[r][c]--;
         if (bricks[r][c] == 0)
+        {
             score += POINTS_BREAK;
+            if (!powerUpFalling && rand() % 5 == 0)
+            {
+                powerUpFalling = true;
+                powerUpX = c * (int)BRICK_W + (int)BRICK_W / 2;
+                powerUpY = (int)BRICKS_Y + r * (int)BRICK_H;
+                powerUpType = rand() % 2;
+            }
+        }
         else
             score += POINTS_HIT;
     }

@@ -115,11 +115,11 @@ int pressedKey = KEY_NONE;      // key pressed once this frame
 sf::Font font;                  // font for the HUD and menu text
 
 // BONUS (power-ups) - only if you do the bonus
-// bool powerUpFalling = false;
-// int  powerUpX = 0, powerUpY = 0;
-// int  powerUpType = 0;          // 0 = W (wide), 1 = + (life)
-// int  wideTimer = 0;            // frames left of the wide paddle (600 = 10 s)
-
+ bool powerUpFalling = false;
+ int  powerUpX = 0, powerUpY = 0;
+ int  powerUpType = 0;          // 0 = W (wide), 1 = + (life)
+ int  wideTimer = 0;            // frames left of the wide paddle (600 = 10 s)
+ int paddleWidth = PADDLE_W;
 
 // =====================================================================
 //  SECTION 3: FUNCTION LIST (prototypes)
@@ -169,6 +169,7 @@ int main()
     // C:\Windows\Fonts) into your project folder.
     if (!font.openFromFile("arial.ttf"))
         cout << "Could not load arial.ttf" << endl;
+    loadLevel();
 
     // TODO: try loading the level once here, so the menu can show an
     //       error if level.txt is missing (Feature 2, 2 marks).
@@ -353,6 +354,35 @@ void updateGame()
         clearSave();
         gameState = GAME_OVER;
     }
+    if (powerUpFalling)
+    {
+        powerUpY += 3;
+        if (powerUpY + 20 >= PADDLE_Y && powerUpX + 20 >= paddleX && powerUpX <= paddleX + paddleWidth)
+        {
+            if (powerUpType == 0)
+            {
+                paddleWidth = 150;
+                wideTimer = 600;
+            }
+            else
+            {
+                lives++;
+            }
+            powerUpFalling = false;
+        }
+        if (powerUpY > WINDOW_H)
+        {
+            powerUpFalling = false;
+        }
+    }
+    if (wideTimer == 0)
+    {
+        wideTimer--;
+        if (wideTimer == 0)
+        {
+            paddleWidth = PADDLE_W;
+        }
+    }
 }
 
 // ---------------------------------------------------------------------
@@ -511,21 +541,42 @@ void saveGame()
 
 bool continueGame()
 {
-    // TODO: open "savegame.txt" with ifstream
-    // TODO: if it did not open OR it is empty -> return false
-    //       (the menu shows "No saved game")
-    // TODO: read score, lives, then the 8 x 10 bricks
-    // TODO: paddle in the middle, ball waiting on it (resetBallOnPaddle)
-    // TODO: gameState = PLAYING, return true
-
-    return false;   // remove this line when you write the function
+    ifstream fin("savegame.txt");
+    if (!fin)
+    {
+        return false;
+    }
+    if (!(fin >> score >> lives))
+    {
+        return false;
+    }
+    for (int r = 0;r < ROWS;r++)
+    {
+        for (int c = 0;c < COLS;c++)
+        {
+            if (!(fin >> bricks[r][c]))
+            {
+                fin.close();
+                return false;
+            }
+            if (bricks[r][c] < 0 || bricks[r][c]>3)
+            {
+                fin.close();
+                return false;
+            }
+        }
+    }
+    fin.close();
+    paddleX = PADDLE_START_X;
+    resetBallOnPaddle();
+    gameState = PLAYING;
+    return true;
 }
 
 void clearSave()
 {
-    // Opening the file with ofstream and closing it straight away
-    // makes it empty, so a finished game can't be continued.
-    // TODO: write it
+    ofstream fout("savegame.txt");
+    fout.close();
 }
 
 
@@ -581,7 +632,7 @@ void drawBricks(sf::RenderWindow& window)
 // ---------------------------------------------------------------------
 void drawPaddleAndBall(sf::RenderWindow& window)
 {
-    sf::RectangleShape paddle({100.f, 14.f});
+    sf::RectangleShape paddle({ (float)paddleWidth, 14.f });
     sf::CircleShape ball(6.f);              // radius 6, fits in a 12 x 12 box
 
     paddle.setFillColor(sf::Color::Cyan);
@@ -591,10 +642,20 @@ void drawPaddleAndBall(sf::RenderWindow& window)
     ball.setPosition({(float)ballX, (float)ballY});
     window.draw(paddle);
     window.draw(ball);
-
-    // BONUS: if wide paddle is on, the paddle size is 150 instead of 100
-    // BONUS: draw the falling power-up ("W" or "+") here
+    if (powerUpFalling)
+    {
+        string symbol;
+        if (powerUpType == 0)
+            symbol = "W";
+        else
+            symbol = "+";
+        sf::Text powerText(font, symbol, 20);
+        powerText.setPosition({(float)powerUpX,(float)powerUpY});
+        powerText.setFillColor(sf::Color::Yellow);
+        window.draw(powerText);
+    }
 }
+
 void drawHUD(sf::RenderWindow& window)
 {
     sf::Text scoreText(font, "SCORE: " + to_string(score), 20);

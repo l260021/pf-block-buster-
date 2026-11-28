@@ -118,8 +118,8 @@ sf::Font font;                  // font for the HUD and menu text
  bool powerUpFalling = false;
  int  powerUpX = 0, powerUpY = 0;
  int  powerUpType = 0;          // 0 = W (wide), 1 = + (life)
- int  wideTimer = 0;            // frames left of the wide paddle (600 = 10 s)
-
+ int  wideTimer = 0;           // frames left of the wide paddle (600 = 10 s)
+ int  paddleWidth = PADDLE_W;
 
 // =====================================================================
 //  SECTION 3: FUNCTION LIST (prototypes)
@@ -354,6 +354,42 @@ void updateGame()
         playerWon = true;
         clearSave();
         gameState = GAME_OVER;
+    }
+    if (powerUpFalling)
+    {
+        powerUpY += 3;
+
+        if (powerUpY + 20 >= PADDLE_Y &&
+            powerUpX + 20 >= paddleX &&
+            powerUpX <= paddleX + paddleWidth)
+        {
+            if (powerUpType == 0)
+            {
+                paddleWidth = 150;
+                wideTimer = 600;
+            }
+            else
+            {
+                lives++;
+            }
+
+            powerUpFalling = false;
+        }
+
+        if (powerUpY > WINDOW_H)
+        {
+            powerUpFalling = false;
+        }
+    }
+
+    if (wideTimer > 0)
+    {
+        wideTimer--;
+
+        if (wideTimer == 0)
+        {
+            paddleWidth = PADDLE_W;
+        }
     }
 }
 
@@ -702,7 +738,7 @@ void drawBricks(sf::RenderWindow& window)
 // ---------------------------------------------------------------------
 void drawPaddleAndBall(sf::RenderWindow& window)
 {
-	sf::RectangleShape paddle({ 100.f, 14.f });
+	sf::RectangleShape paddle({ (float)paddleWidth, 14.f });
 	sf::CircleShape ball(6.f);              // radius 6, fits in a 12 x 12 box
 
 	paddle.setFillColor(sf::Color::Cyan);
@@ -713,6 +749,26 @@ void drawPaddleAndBall(sf::RenderWindow& window)
 	window.draw(paddle);
 	window.draw(ball);
 
+    if (powerUpFalling)
+    {
+        string symbol;
+
+        if (powerUpType == 0)
+            symbol = "W";
+        else
+            symbol = "+";
+
+        sf::Text powerText(font, symbol, 20);
+
+        powerText.setPosition({
+            (float)powerUpX,
+            (float)powerUpY
+            });
+
+        powerText.setFillColor(sf::Color::Yellow);
+
+        window.draw(powerText);
+    }
 	// BONUS: if wide paddle is on, the paddle size is 150 instead of 100
 	// BONUS: draw the falling power-up ("W" or "+") here
 }

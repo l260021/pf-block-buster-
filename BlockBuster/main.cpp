@@ -115,10 +115,10 @@ int pressedKey = KEY_NONE;      // key pressed once this frame
 sf::Font font;                  // font for the HUD and menu text
 
 // BONUS (power-ups) - only if you do the bonus
-// bool powerUpFalling = false;
-// int  powerUpX = 0, powerUpY = 0;
-// int  powerUpType = 0;          // 0 = W (wide), 1 = + (life)
-// int  wideTimer = 0;            // frames left of the wide paddle (600 = 10 s)
+ bool powerUpFalling = false;
+ int  powerUpX = 0, powerUpY = 0;
+ int  powerUpType = 0;          // 0 = W (wide), 1 = + (life)
+ int  wideTimer = 0;            // frames left of the wide paddle (600 = 10 s)
 
 
 // =====================================================================

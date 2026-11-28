@@ -366,8 +366,8 @@ void movePaddle()
 	}
     if (paddleX < 0)
         paddleX = 0;
-    if (paddleX + PADDLE_W > WINDOW_W)
-        paddleX =  WINDOW_W-PADDLE_W  ;
+    if (paddleX + paddleWidth > WINDOW_W)
+        paddleX =  WINDOW_W-paddleWidth ;
 	
 }
 
@@ -482,13 +482,13 @@ void bounceOnPaddle()
 {
     if (dy <= 0)
         return;
-    bool overlapX = (ballX + BALL_SIZE > paddleX) && (ballX < paddleX + PADDLE_W);
+    bool overlapX = (ballX + BALL_SIZE > paddleX) && (ballX < paddleX + paddleWidth);
     bool overlapY = (ballY + BALL_SIZE > PADDLE_Y) && (ballY < PADDLE_Y + PADDLE_H);
     if (overlapX && overlapY)
     {
         ballY = PADDLE_Y - BALL_SIZE;
         dy = -5;
-        int part = (ballX + BALL_SIZE / 2 - paddleX) * 4 / PADDLE_W;
+        int part = (ballX + BALL_SIZE / 2 - paddleX) * 4 / paddleWidth;
         if (part < 0)
             part = 0;
         if (part > 3)

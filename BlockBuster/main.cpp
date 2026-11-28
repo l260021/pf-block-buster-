@@ -605,21 +605,43 @@ void saveGame()
 
 bool continueGame()
 {
-	// TODO: open "savegame.txt" with ifstream
-	// TODO: if it did not open OR it is empty -> return false
-	//       (the menu shows "No saved game")
-	// TODO: read score, lives, then the 8 x 10 bricks
-	// TODO: paddle in the middle, ball waiting on it (resetBallOnPaddle)
-	// TODO: gameState = PLAYING, return true
 
-	return false;   // remove this line when you write the function
+    ifstream fin("savegame.txt");
+    if (!fin)
+    {
+        return false;
+    }
+    if (!(fin >> score >> lives))
+    {
+        return false;
+    }
+    for (int r = 0;r < ROWS;r++)
+    {
+        for (int c = 0;c < COLS;c++)
+        {
+            if (!(fin >> bricks[r][c]))
+            {
+                fin.close();
+                return false;
+            }
+            if (bricks[r][c] < 0 || bricks[r][c]>3)
+            {
+                fin.close();
+                return false;
+            }
+        }
+    }
+    fin.close();
+    paddleX = PADDLE_START_X;
+    resetBallOnPaddle();
+    gameState = PLAYING;
+    return true;
 }
 
 void clearSave()
 {
-	// Opening the file with ofstream and closing it straight away
-	// makes it empty, so a finished game can't be continued.
-	// TODO: write it
+    ofstream fout("savegame.txt");
+    fout.close();
 }
 
 

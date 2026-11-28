@@ -530,6 +530,28 @@ void bounceOnPaddle()
 	//   - part = (ballX + 6 - paddleX) * 4 / PADDLE_W
 	//   - if part < 0 use 0, if part > 3 use 3
 	//   - part 0 -> dx = -6, part 1 -> dx = -3, part 2 -> dx = 3, part 3 -> dx = 6
+    if (dy <= 0)
+        return;
+    bool overlapX = (ballX + BALL_SIZE > paddleX) && (ballX < paddleX + PADDLE_W);
+    bool overlapY = (ballY + BALL_SIZE > PADDLE_Y) && (ballY < PADDLE_Y + PADDLE_H);
+    if (overlapX && overlapY)
+    {
+        ballY = PADDLE_Y - BALL_SIZE;
+        dy = -5;
+        int part = (ballX + BALL_SIZE / 2 - paddleX) * 4 / PADDLE_W;
+        if (part < 0)
+            part = 0;
+        if (part > 3)
+            part = 3;
+        if (part == 0)
+            dx = -6;
+        else if (part == 1)
+            dx = -3;
+        else if (part == 2)
+            dx = 3;
+        else
+            dx = 6;
+    }
 }
 
 // ---------------------------------------------------------------------

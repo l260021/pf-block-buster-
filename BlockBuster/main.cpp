@@ -1,38 +1,6 @@
 // =====================================================================
 //  BLOCK BUSTER  -  a brick breaker game in C++ with SFML 3
 //  CS1002 Programming Fundamentals, Fall 2026  -  Semester Project
-//
-//  Group members (also put these in README.md):
-//    1. Name ...................  Roll no. 26L-....
-//    2. Name ...................  Roll no. 26L-....
-//    3. Name ...................  Roll no. 26L-....
-//
-//  HOW TO USE THIS TEMPLATE
-//  - Every function below is EMPTY. The comments say what goes inside.
-//  - "WHO:" says which member writes it (change it to your names).
-//  - "MARKS:" says which feature/checklist item it earns.
-//  - The game logic must be your team's own work, so you write the code
-//    inside the functions. Only the SFML parts (window, drawing, keys,
-//    text) are given, as the project PDF allows.
-//  - Delete the "TODO" lines once a part is done and working.
-//
-//  SUGGESTED SPLIT FOR 3 MEMBERS
-//    Member 1: Features 1, 2, 3   (game loop, loading level, paddle, launch)
-//    Member 2: Features 4, 5      (ball movement, bouncing, breaking bricks)
-//    Member 3: Features 6, 7, 8   (lives/score/HUD, menu & states, save)
-//    Everyone: Feature 9 (own commits on GitHub), Feature 10 (clean code)
-//    Bonus (+5): power-ups, whoever finishes first
-//
-//  VISUAL STUDIO SETUP (SFML 3.0.2) - check these if it doesn't build
-//  - Project Properties -> C/C++ -> Language -> C++ Language Standard:
-//    ISO C++17 (or newer). SFML 3 does not work with C++14.
-//  - Linker -> Input: sfml-graphics, sfml-window, sfml-system
-//    (with "-d" at the end for Debug, e.g. sfml-graphics-d.lib).
-//  - The SFML .dll files must be next to your .exe (or in PATH).
-//  - Put level.txt and arial.ttf in the SAME folder as main.cpp
-//    (the project folder), because that is where Visual Studio runs
-//    the game from.
-// =====================================================================
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -46,8 +14,6 @@ using namespace std;
 
 // =====================================================================
 //  SECTION 1: GAME VALUES (named constants, no magic numbers)
-//  MARKS: Feature 10 - "named constants instead of magic numbers"
-//  These are the values from the "Game values" table in the PDF.
 // =====================================================================
 const int WINDOW_W = 600;          // window width
 const int WINDOW_H = 700;          // window height
@@ -91,8 +57,7 @@ const int OPTION_EXIT = 2;
 
 
 // =====================================================================
-//  SECTION 2: GAME VARIABLES
-//  Everything the game needs to remember between frames.
+//  SECTION 2: GAME VARIABLEs
 // =====================================================================
 int bricks[ROWS][COLS];   // 0 = no brick, 1/2/3 = hits left (Feature 2)
 
@@ -115,15 +80,14 @@ int pressedKey = KEY_NONE;      // key pressed once this frame
 sf::Font font;                  // font for the HUD and menu text
 
 // BONUS (power-ups) - only if you do the bonus
-// bool powerUpFalling = false;
-// int  powerUpX = 0, powerUpY = 0;
-// int  powerUpType = 0;          // 0 = W (wide), 1 = + (life)
-// int  wideTimer = 0;            // frames left of the wide paddle (600 = 10 s)
+ bool powerUpFalling = false;
+ int  powerUpX = 0, powerUpY = 0;
+ int  powerUpType = 0;          // 0 = W (wide), 1 = + (life)
+ int  wideTimer = 0;            // frames left of the wide paddle (600 = 10 s)
 
 
 // =====================================================================
 //  SECTION 3: FUNCTION LIST (prototypes)
-//  MARKS: Feature 10 - small functions that each do one job
 // =====================================================================
 bool loadLevel();
 void resetBallOnPaddle();
@@ -187,7 +151,6 @@ int main()
 
 // ---------------------------------------------------------------------
 //  loadLevel()  -  read level.txt into bricks[8][10]
-//  MARKS: Feature 2 (15 marks)
 // ---------------------------------------------------------------------
 bool loadLevel()
 {
@@ -209,8 +172,6 @@ bool loadLevel()
 }
 // ---------------------------------------------------------------------
 //  resetBallOnPaddle()  -  put the ball back, waiting for Space
-//  MARKS: Feature 3 / Feature 6
-//  WHO: Member 1
 // ---------------------------------------------------------------------
 void resetBallOnPaddle()
 {
@@ -224,8 +185,6 @@ void resetBallOnPaddle()
 
 // ---------------------------------------------------------------------
 //  startNewGame()  -  New Game always starts fresh
-//  MARKS: Feature 7 ("New Game starts fresh")
-//  WHO: Member 3
 // ---------------------------------------------------------------------
 void startNewGame()
 {
@@ -245,7 +204,6 @@ void startNewGame()
 
 // =====================================================================
 //  SECTION 6: INPUT  (step 1 of the game loop)
-//  WHO: Member 1 (keys) + Member 3 (menu part)
 // =====================================================================
 void handleInput(sf::RenderWindow& window)
 {
@@ -265,9 +223,6 @@ void handleInput(sf::RenderWindow& window)
 			if (key->code == sf::Keyboard::Key::Down)   pressedKey = KEY_DOWN;
 		}
 	}
-
-    // ---- What each key does depends on the state (switch-case) ----
-    // MARKS: Feature 7 - "gameState handled with switch-case"
     switch (gameState)
     {
     case MENU:
@@ -333,7 +288,6 @@ void handleInput(sf::RenderWindow& window)
 
 // =====================================================================
 //  SECTION 7: UPDATE  (step 2 of the game loop)
-//  WHO: Member 2
 // =====================================================================
 void updateGame()
 {
@@ -359,8 +313,6 @@ void updateGame()
 
 // ---------------------------------------------------------------------
 //  movePaddle()  -  Left/Right or A/D while HELD down
-//  MARKS: Feature 3 (5 marks: moves 3 + never leaves window 2)
-//  WHO: Member 1
 // ---------------------------------------------------------------------
 void movePaddle()
 {
@@ -385,8 +337,6 @@ void movePaddle()
 
 // ---------------------------------------------------------------------
 //  launchBall()  -  Space launches the ball upwards
-//  MARKS: Feature 3 (2 marks)
-//  WHO: Member 1
 // ---------------------------------------------------------------------
 void launchBall()
 {
@@ -398,32 +348,14 @@ void launchBall()
     else
         dx = -3;
     ballLaunched = true;
-	// TODO: dx = 3 or -3, chosen with rand() % 2
-	// TODO: ballLaunched = true
+	
 }
 
 // ---------------------------------------------------------------------
 //  moveBall()  -  move in TWO steps: x first, then y
-//  MARKS: Feature 4 (10 marks) + uses Feature 5
-//  WHO: Member 2
 // ---------------------------------------------------------------------
 void moveBall()
 {
-	// ---- Step 1: x ----
-	// TODO: ballX = ballX + dx
-	// TODO: hit the left wall (ballX < 0) or right wall (ballX + 12 > 600)?
-	//       -> undo the step and dx = -dx
-	// TODO: did the x step touch a brick? (hitBricks())
-	//       -> undo the step and dx = -dx   (ball goes back sideways)
-
-	// ---- Step 2: y ----
-	// TODO: ballY = ballY + dy
-	// TODO: went into the HUD (ballY < 50)? -> undo the step and dy = -dy
-	// TODO: did the y step touch a brick? -> undo the step and dy = -dy
-
-    // ---- Paddle and bottom ----
-    // TODO: bounceOnPaddle()
-    // TODO: ball below the window (ballY > 700)? -> loseLife()   (Feature 6)
     ballX += dx;
     if (ballX<0 || ballX + BALL_SIZE>WINDOW_W)
     {
@@ -453,29 +385,10 @@ void moveBall()
 
 // ---------------------------------------------------------------------
 //  hitBricks()  -  find the bricks under the 4 corners of the ball
-//  Returns true if the ball touched at least one brick.
-//  MARKS: Feature 5 (25 marks) - the biggest feature!
-//  WHO: Member 2
+//  Returns true if the ball touched at least one brick
 // ---------------------------------------------------------------------
 bool hitBricks()
 {
-    // The 4 corners of the ball's box are:
-    //   (ballX, ballY), (ballX + 11, ballY),
-    //   (ballX, ballY + 11), (ballX + 11, ballY + 11)
-    //
-    // TODO: for each corner (cx, cy):
-    //   - skip it unless it is inside the brick area:
-    //       cy >= 100, cy < 300, cx >= 0, cx < 600
-    //   - row = (cy - 100) / 25,   col = cx / 60   (integer division)
-    //   - if bricks[row][col] > 0, that brick was touched
-    //
-    // TODO: every touched brick loses ONE hit (subtract 1).
-    //       Careful: if two corners are on the SAME brick, it loses only one hit.
-    // TODO: score: +10 for a hit, +50 if that hit made it 0 (broke it)
-    // BONUS: when a brick breaks, rand() % 5 == 0 -> drop a power-up
-    // TODO: return true if any brick was touched, otherwise false
-
-      // remove this line when you write the function
     int cornerX[4] = { ballX, ballX + BALL_SIZE - 1,ballX,ballX + BALL_SIZE - 1 };
     int cornerY[4] = { ballY,ballY,ballY + BALL_SIZE - 1,ballY + BALL_SIZE - 1 };
     int hitRow[4], hitCol[4];
@@ -522,14 +435,6 @@ bool hitBricks()
 // ---------------------------------------------------------------------
 void bounceOnPaddle()
 {
-	// TODO: only when the ball is moving DOWN (dy > 0)
-	// TODO: check if the ball's box and the paddle's box touch
-	//       (overlap both left-right AND up-down)
-	// TODO: if they touch:
-	//   - ballY = 638 (put it just on top of the paddle), dy = -5
-	//   - part = (ballX + 6 - paddleX) * 4 / PADDLE_W
-	//   - if part < 0 use 0, if part > 3 use 3
-	//   - part 0 -> dx = -6, part 1 -> dx = -3, part 2 -> dx = 3, part 3 -> dx = 6
     if (dy <= 0)
         return;
     bool overlapX = (ballX + BALL_SIZE > paddleX) && (ballX < paddleX + PADDLE_W);

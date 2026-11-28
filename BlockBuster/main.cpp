@@ -448,6 +448,11 @@ void moveBall()
         ballY -= dy;
         dy = -dy;
     }
+    else if (hitBricks())
+    {
+        ballY -= dy;
+        dy = -dy;
+    }
     bounceOnPaddle();
     if (ballY > WINDOW_H)
         loseLife();
@@ -461,23 +466,60 @@ void moveBall()
 // ---------------------------------------------------------------------
 bool hitBricks()
 {
-	// The 4 corners of the ball's box are:
-	//   (ballX, ballY), (ballX + 11, ballY),
-	//   (ballX, ballY + 11), (ballX + 11, ballY + 11)
-	//
-	// TODO: for each corner (cx, cy):
-	//   - skip it unless it is inside the brick area:
-	//       cy >= 100, cy < 300, cx >= 0, cx < 600
-	//   - row = (cy - 100) / 25,   col = cx / 60   (integer division)
-	//   - if bricks[row][col] > 0, that brick was touched
-	//
-	// TODO: every touched brick loses ONE hit (subtract 1).
-	//       Careful: if two corners are on the SAME brick, it loses only one hit.
-	// TODO: score: +10 for a hit, +50 if that hit made it 0 (broke it)
-	// BONUS: when a brick breaks, rand() % 5 == 0 -> drop a power-up
-	// TODO: return true if any brick was touched, otherwise false
+    // The 4 corners of the ball's box are:
+    //   (ballX, ballY), (ballX + 11, ballY),
+    //   (ballX, ballY + 11), (ballX + 11, ballY + 11)
+    //
+    // TODO: for each corner (cx, cy):
+    //   - skip it unless it is inside the brick area:
+    //       cy >= 100, cy < 300, cx >= 0, cx < 600
+    //   - row = (cy - 100) / 25,   col = cx / 60   (integer division)
+    //   - if bricks[row][col] > 0, that brick was touched
+    //
+    // TODO: every touched brick loses ONE hit (subtract 1).
+    //       Careful: if two corners are on the SAME brick, it loses only one hit.
+    // TODO: score: +10 for a hit, +50 if that hit made it 0 (broke it)
+    // BONUS: when a brick breaks, rand() % 5 == 0 -> drop a power-up
+    // TODO: return true if any brick was touched, otherwise false
 
-	return false;   // remove this line when you write the function
+      // remove this line when you write the function
+    int cornerX[4] = { ballX, ballX + BALL_SIZE - 1,ballX,ballX + BALL_SIZE - 1 };
+    int cornerY[4] = { ballY,ballY,ballY + BALL_SIZE - 1,ballY + BALL_SIZE - 1 };
+    int hitRow[4], hitCol[4];
+    int hits = 0;
+    for (int i = 0;i < 4;i++)
+    {
+        int cx = cornerX[i];
+        int cy = cornerY[i];
+        if (cy < BRICKS_Y || cy >= BRICKS_Y + ROWS * BRICK_H || cx < 0 || cx >= WINDOW_W)
+            continue;
+        int row = (cy - (int)BRICKS_Y) / (int)BRICK_H;
+        int col = cx / (int)BRICK_W;
+        if (bricks[row][col] == 0)
+            continue;
+        bool already = false;
+        for (int k = 0;k < hits;k++)
+            if (hitRow[k] == row && hitCol[k] == col)
+                already = true;
+        if (!already)
+         {
+                hitRow[hits] = row;
+                hitCol[hits] = col;
+                hits++;
+         }
+
+    }
+    for (int k = 0;k < hits;k++)
+    {
+        int r = hitRow[k];
+        int c = hitCol[k];
+        bricks[r][c]--;
+        if (bricks[r][c] == 0)
+            score += POINTS_BREAK;
+        else
+            score += POINTS_HIT;
+    }
+    return hits > 0;
 }
 
 // ---------------------------------------------------------------------

@@ -170,12 +170,6 @@ int main()
 	if (!font.openFromFile("arial.ttf"))
 		cout << "Could not load arial.ttf" << endl;
 	loadLevel();
-	gameState = PLAYING;
-	// TODO: try ;
-	// loading the level once here, so the menu can show an
-	//       error if level.txt is missing (Feature 2, 2 marks).
-
-	// THE GAME LOOP: input -> update -> draw, in this order (2 marks)
 	while (window.isOpen())
 	{
 		handleInput(window);
@@ -194,11 +188,9 @@ int main()
 // ---------------------------------------------------------------------
 //  loadLevel()  -  read level.txt into bricks[8][10]
 //  MARKS: Feature 2 (15 marks)
-//  WHO: Member 1
 // ---------------------------------------------------------------------
 bool loadLevel()
 {
-	// TODO: open "level.txt" with ifstream.
 	ifstream fin("level.txt");
 	if (!fin) {
 		levelMissing = true;
@@ -214,16 +206,7 @@ bool loadLevel()
 	fin.close();
 	levelMissing = false;
 	return true;
-	// TODO: if it did not open -> set levelMissing = true and return false
-	//       (the game must show an error message, NOT crash).
-	// TODO: read the first two numbers (rows and columns).
-	// TODO: two nested loops (r, c) and read each number with
-	//       fin >> bricks[r][c];
-	// TODO: close the file, set levelMissing = false, return true.
-
-	  
 }
-
 // ---------------------------------------------------------------------
 //  resetBallOnPaddle()  -  put the ball back, waiting for Space
 //  MARKS: Feature 3 / Feature 6
@@ -231,10 +214,12 @@ bool loadLevel()
 // ---------------------------------------------------------------------
 void resetBallOnPaddle()
 {
-	// TODO: ballLaunched = false
-	// TODO: ball sits in the middle of the paddle:
-	//       ballX = paddleX + 44,  ballY = 638
-	// TODO: dx and dy = 0
+    ballLaunched = false;
+    ballX = paddleX + 44;
+    ballY = 638;
+    dx = 0;
+    dy = 0;
+
 }
 
 // ---------------------------------------------------------------------
@@ -379,21 +364,23 @@ void updateGame()
 // ---------------------------------------------------------------------
 void movePaddle()
 {
-	// Held-down keys are checked directly every frame (SFML part):
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) ||
-		sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-	{
-		// TODO: move the paddle left by PADDLE_SPEED
-	}
+	
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) ||
+        sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+    {
+        paddleX = paddleX - PADDLE_SPEED;
+    }
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) ||
 		sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
 	{
-		// TODO: move the paddle right by PADDLE_SPEED
+        paddleX = paddleX + PADDLE_SPEED;
 	}
-
-	// TODO: stop the paddle at the edges:
-	//       paddleX can't go below 0, and paddleX + PADDLE_W can't go past WINDOW_W
+    if (paddleX < 0)
+        paddleX = 0;
+    if (paddleX + PADDLE_W > WINDOW_W)
+        paddleX =  WINDOW_W-PADDLE_W  ;
+	
 }
 
 // ---------------------------------------------------------------------
@@ -403,8 +390,14 @@ void movePaddle()
 // ---------------------------------------------------------------------
 void launchBall()
 {
-	// TODO: only if the ball is not launched yet
-	// TODO: dy = -5 (upwards)
+    if (ballLaunched)
+        return;
+    dy = -5;
+    if (rand() % 2 == 0)
+        dx = 3;
+    else
+        dx = -3;
+    ballLaunched = true;
 	// TODO: dx = 3 or -3, chosen with rand() % 2
 	// TODO: ballLaunched = true
 }
